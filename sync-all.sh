@@ -5,6 +5,7 @@
 # 支持的仓库:
 #   --obsidian    同步 scienc-project-repo 知识库
 #   --scripts     同步 scripts 脚本仓库
+#   --note-learn  同步 note-learn-record 学习记录库
 #   --all         同步所有仓库
 #   无参数        同步所有仓库
 
@@ -43,6 +44,10 @@ sync_repo() {
   echo "  Done: $(git log --oneline -1)"
 }
 
+sync_note_learn() {
+  sync_repo "Note Learn Record" "/mnt/f/obsidian_repository/note-learn-record" "$MSG"
+}
+
 case "$1" in
   --obsidian)
     sync_repo "Obsidian (scienc-project-repo)" "/mnt/f/obsidian_repository/scienc-project-repo" "$MSG"
@@ -50,9 +55,13 @@ case "$1" in
   --scripts)
     sync_repo "Scripts" "/mnt/f/scripts" "$MSG"
     ;;
+  --note-learn)
+    sync_note_learn
+    ;;
   --all|""|*)
     sync_repo "Obsidian (scienc-project-repo)" "/mnt/f/obsidian_repository/scienc-project-repo" "$MSG"
     sync_repo "Scripts" "/mnt/f/scripts" "$MSG"
+    sync_note_learn
     ;;
 esac
 
