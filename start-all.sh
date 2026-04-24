@@ -2,8 +2,6 @@
 # start-all.sh - OpenCode 全栈启动脚本
 # 用法: bash /mnt/f/scripts/start-all.sh
 
-set -e
-
 OC_BIN="/home/alex/.opencode/bin/opencode"
 LOG_DIR="/tmp/opencode"
 mkdir -p $LOG_DIR

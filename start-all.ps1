@@ -5,9 +5,9 @@ $ErrorActionPreference = "Continue"
 Write-Host "=== OpenCode 全栈启动 (Windows) ===" -ForegroundColor Cyan
 Write-Host "时间: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
-# 1. 检查 WSL 是否可用
-Write-Host "`n[1/3] 检查 WSL..." -ForegroundColor Yellow
-$wslCheck = wsl --list --running 2>&1
+# 1. 确保 WSL 已启动
+Write-Host "`n[1/4] 启动 WSL..." -ForegroundColor Yellow
+wsl -d Ubuntu -- echo "WSL ready" 2>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] WSL 不可用" -ForegroundColor Red
     exit 1
@@ -15,14 +15,11 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "  WSL 运行中" -ForegroundColor Green
 
 # 2. 启动 OpenCode 双实例 (WSL 内)
-Write-Host "`n[2/3] 启动 OpenCode 双实例..." -ForegroundColor Yellow
+Write-Host "`n[2/4] 启动 OpenCode 双实例..." -ForegroundColor Yellow
 wsl -d Ubuntu -- bash -c "bash /mnt/f/scripts/start-all.sh"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[WARN] OpenCode 启动可能有错误" -ForegroundColor Yellow
-}
 
 # 3. 启动端口转发
-Write-Host "`n[3/3] 检查端口转发..." -ForegroundColor Yellow
+Write-Host "`n[3/4] 检查端口转发..." -ForegroundColor Yellow
 $fwdRunning = Get-Process -Name python -ErrorAction SilentlyContinue | 
     Where-Object { $_.CommandLine -like '*port-fwd*' }
 
@@ -33,6 +30,20 @@ if ($fwdRunning) {
     Start-Process -FilePath "python" -ArgumentList "F:\scripts\port-fwd-win.py" `
         -WindowStyle Hidden -PassThru | ForEach-Object {
         Write-Host "  已启动 (PID: $($_.Id))" -ForegroundColor Green
+    }
+}
+
+# 4. 验证手机端可达性
+Write-Host "`n[4/4] 验证 Tailscale 端口..." -ForegroundColor Yellow
+Start-Sleep -Seconds 2
+foreach ($port in @(9080, 9081)) {
+    try {
+        $tcp = New-Object System.Net.Sockets.TcpClient
+        $tcp.Connect("127.0.0.1", $port)
+        $tcp.Close()
+        Write-Host "  端口 $port 可达" -ForegroundColor Green
+    } catch {
+        Write-Host "  端口 $port 不可达" -ForegroundColor Red
     }
 }
 
