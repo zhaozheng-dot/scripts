@@ -73,7 +73,7 @@ Generated files usually include:
 *-plan.md
 ```
 
-The user should review `*-plan.md` or `*-plan.json` before continuing.
+The plan includes `recommendation_reasons`, which explain why a mode, template, fidelity level, or manual-review path was suggested. The user should review `*-plan.md` or `*-plan.json` before continuing.
 
 ### Stage 2: Run After Confirmation
 

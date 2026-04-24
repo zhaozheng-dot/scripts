@@ -19,11 +19,11 @@
   "generate_fidelity_ledger": true,
   "requires_user_confirmation": true,
   "confirmed": true,
-  "output": "/mnt/f/office-output/word/registry-lupin-reading-validation.docx",
-  "extract_output": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-source-map.json",
-  "ledger_json": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.json",
-  "ledger_md": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.md",
-  "quality_report": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-quality-report.json",
+  "output": "/mnt/f/office-output/word/reason-lupin-reading-validation.docx",
+  "extract_output": "/mnt/f/office-output/extracted/reason-lupin/Lupin Dental (DIGICUTO SAS) 投资评审报告-source-map.json",
+  "ledger_json": "/mnt/f/office-output/extracted/reason-lupin/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.json",
+  "ledger_md": "/mnt/f/office-output/extracted/reason-lupin/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.md",
+  "quality_report": "/mnt/f/office-output/extracted/reason-lupin/Lupin Dental (DIGICUTO SAS) 投资评审报告-quality-report.json",
   "allowed_operations": [
     "do_not_overwrite_source",
     "preserve_sources",
@@ -35,6 +35,16 @@
     "merge_duplicates",
     "light_rewording",
     "no_new_facts"
+  ],
+  "recommendation_reasons": [
+    "Text density is high, so generic_reading is recommended to improve readability while preserving source order.",
+    "Grouped or SmartArt-like shapes are present, so generic_visual_report is available for visual-structure translation and ledger review.",
+    "Images are present; image embedding depends on the confirmed include-images setting.",
+    "Detected document type is investment_review, so professional_report can use the investment_review plugin after explicit confirmation.",
+    "Risk level is high, so user confirmation is required before DOCX generation.",
+    "High-risk material defaults to F2 unless the user explicitly authorizes F3 professional rewriting.",
+    "F2 allows light restructuring but still forbids unsupported new facts.",
+    "Selected mode M2 generic_reading: Preserve source order while improving Word readability."
   ],
   "warnings": [
     "High-risk document type: confirm fidelity level before professional rewriting.",

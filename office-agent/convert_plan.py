@@ -17,6 +17,7 @@ from template_registry import (
     mode_code,
     mode_label,
     normalize_mode,
+    recommendation_reasons,
     recommended_modes,
 )
 
@@ -68,6 +69,7 @@ def make_plan(preflight, mode=None, fidelity=None, include_images=False):
         'ledger_md': f'/mnt/f/office-output/extracted/{base}-fidelity-ledger.md',
         'quality_report': f'/mnt/f/office-output/extracted/{base}-quality-report.json',
         'allowed_operations': allowed_operations(mode, fidelity),
+        'recommendation_reasons': recommendation_reasons(preflight, mode, fidelity),
         'warnings': build_warnings(preflight, mode, fidelity, template),
     }
     return plan
@@ -117,6 +119,7 @@ def candidate_markdown(plan):
 
 
 def plan_markdown(plan):
+    reasons = '\n'.join(f'- {r}' for r in plan.get('recommendation_reasons', [])) or '- None'
     warnings = '\n'.join(f'- {w}' for w in plan.get('warnings', [])) or '- None'
     return f"""# Office Conversion Plan
 
@@ -137,6 +140,10 @@ Risk level: `{plan['risk_level']}`
 - Source map: `{plan['generate_source_map']}`
 - Fidelity ledger: `{plan['generate_fidelity_ledger']}`
 - Requires confirmation: `{plan['requires_user_confirmation']}`
+
+## Recommendation Reasons
+
+{reasons}
 
 ## Output
 

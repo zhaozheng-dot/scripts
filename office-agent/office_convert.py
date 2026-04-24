@@ -109,6 +109,11 @@ def print_plan_result(paths, plan):
     print(f"Plan JSON: {paths['plan']}")
     print(f"Plan Markdown: {paths['plan_md']}")
     print(f"Recommended: {plan.get('mode_code')} {plan.get('selected_mode')} / template={plan.get('template')} / fidelity={plan.get('fidelity_level')}")
+    reasons = plan.get('recommendation_reasons', [])
+    if reasons:
+        print('Reasons:')
+        for reason in reasons[:4]:
+            print(f'- {reason}')
     print('Run after confirmation:')
     print(f"  python3 office_convert.py run {paths['plan']} --confirm")
 
