@@ -29,12 +29,12 @@ def default_output(base, mode):
 
 def choose_default_mode(preflight):
     source_modes = [normalize_mode(mode) for mode in preflight.get('recommended_modes', [])]
+    modes = recommended_modes(preflight)
+    if preflight.get('risk_level') in {'medium', 'high'} or preflight.get('text_density') in {'medium', 'high'}:
+        return 'generic_reading'
     for mode in source_modes:
         if mode and mode in MODE_REGISTRY and mode != 'professional_report':
             return mode
-    modes = recommended_modes(preflight)
-    if preflight.get('text_density') in {'medium', 'high'}:
-        return 'generic_reading'
     return modes[0]
 
 

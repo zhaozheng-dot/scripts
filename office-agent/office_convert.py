@@ -13,7 +13,7 @@ from confirm_plan import confirm_plan
 from convert_plan import make_plan, plan_markdown
 from fidelity_ledger import ledger_rows, markdown as ledger_markdown
 from office_common import read_json, safe_stem, write_json, write_text
-from office_quality_check import check as quality_check
+from office_quality_check import check as quality_check, markdown as quality_markdown
 from pptx_extract import extract
 from pptx_preflight import preflight
 from pptx_to_report_docx import render_from_plan
@@ -39,6 +39,7 @@ def paths_for(input_path, workspace=None):
         'ledger_json': os.path.join(root, f'{base}-fidelity-ledger.json'),
         'ledger_md': os.path.join(root, f'{base}-fidelity-ledger.md'),
         'quality': os.path.join(root, f'{base}-quality-report.json'),
+        'quality_md': os.path.join(root, f'{base}-quality-report.md'),
     }
 
 
@@ -90,8 +91,9 @@ def run_confirmed_plan(plan_path, confirm=False, template=None, output=None, inc
     write_text(paths['ledger_md'], ledger_markdown(rows))
 
     docx_path = render_from_plan(extracted, plan, require_confirmed=True)
-    quality = quality_check(docx_path, paths['extract'], paths['ledger_json'])
+    quality = quality_check(docx_path, paths['extract'], paths['ledger_json'], plan_json=confirmed_plan_path)
     write_json(paths['quality'], quality)
+    write_text(paths['quality_md'], quality_markdown(quality))
     return {
         'plan': confirmed_plan_path,
         'source_map': paths['extract'],
@@ -99,6 +101,8 @@ def run_confirmed_plan(plan_path, confirm=False, template=None, output=None, inc
         'ledger_md': paths['ledger_md'],
         'docx': docx_path,
         'quality': paths['quality'],
+        'quality_md': paths['quality_md'],
+        'quality_status': quality.get('status'),
         'quality_warnings': quality.get('warnings', []),
     }
 
@@ -125,6 +129,8 @@ def print_run_result(result):
     print(f"Fidelity ledger: {result['ledger_md']}")
     print(f"DOCX: {result['docx']}")
     print(f"Quality report: {result['quality']}")
+    print(f"Quality markdown: {result['quality_md']}")
+    print(f"Quality status: {result['quality_status']}")
     if result['quality_warnings']:
         print('Quality warnings:')
         for warning in result['quality_warnings']:

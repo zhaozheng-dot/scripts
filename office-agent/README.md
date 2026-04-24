@@ -14,6 +14,11 @@ Lupin Dental is a validation fixture, not the center of the architecture.
 
 Implemented and validated:
 
+- Unified `office_agent.py` entry point for generate / convert / modify.
+- Real OOXML generation for DOCX / PPTX / XLSX.
+- Safe modification of DOCX / PPTX / XLSX with change logs.
+- Structured quality reports with `pass` / `warn` / `fail`.
+- Regression runner and synthetic PPTX fixture set.
 - PPTX preflight analysis.
 - Confirmable conversion plan generation.
 - Explicit user-confirmation gate.
@@ -24,10 +29,11 @@ Implemented and validated:
 - Basic quality checks.
 - Unified two-stage CLI entry point.
 
-The unified entry point is:
+The unified entry points are:
 
 ```text
-office_convert.py
+office_agent.py   # generate / convert / modify
+office_convert.py # focused PPTX -> DOCX compatibility entry point
 ```
 
 ## Two-Stage Gated Workflow
@@ -104,6 +110,37 @@ Generated files include:
 *-quality-report.json
 ```
 
+## Unified Agent CLI
+
+Generate real Office files after plan confirmation:
+
+```bash
+python3 office_agent.py generate docx schemas/docx.example.json --confirm
+python3 office_agent.py generate pptx schemas/pptx.example.json --confirm
+python3 office_agent.py generate xlsx schemas/xlsx.example.json --confirm
+```
+
+Convert PPTX to DOCX through the same gated interface:
+
+```bash
+python3 office_agent.py convert pptx-to-docx input.pptx --confirm
+```
+
+Modify existing files without overwriting the source:
+
+```bash
+python3 office_agent.py modify input.docx schemas/modify.example.json --confirm
+python3 office_agent.py modify input.pptx schemas/modify.example.json --confirm
+python3 office_agent.py modify input.xlsx schemas/modify.example.json --confirm
+```
+
+Run regression fixtures:
+
+```bash
+python3 make_regression_fixtures.py
+python3 run_regression.py
+```
+
 ## Conversion Modes
 
 | Mode | Name | Default template | Default fidelity | Use case |
@@ -168,7 +205,12 @@ Professional templates must not invent unsupported facts.
 
 | File | Role |
 |---|---|
-| `office_convert.py` | Unified gated workflow entry point |
+| `office_agent.py` | Unified generate / convert / modify entry point |
+| `office_convert.py` | Focused PPTX -> DOCX gated workflow entry point |
+| `office_generate.py` | Low-level DOCX / PPTX / XLSX generation renderers |
+| `office_modify.py` | Low-level DOCX / PPTX / XLSX modification operations |
+| `run_regression.py` | Batch regression runner |
+| `make_regression_fixtures.py` | Synthetic PPTX fixture generator |
 | `office_common.py` | Shared helpers |
 | `template_registry.py` | Conversion mode and template registry |
 | `pptx_preflight.py` | Lightweight PPTX analysis |
@@ -192,7 +234,11 @@ Professional templates must not invent unsupported facts.
 | `fidelity-ledger.json` | Structured content-handling ledger |
 | `fidelity-ledger.md` | Human-readable ledger |
 | `*.docx` | Generated Word document |
-| `quality-report.json` | Technical/content/experience checks |
+| `quality-report.json` | Structured technical/content/experience checks with pass/warn/fail |
+| `quality-report.md` | Human-readable quality report |
+| `change-log.json` | Modify-task change log |
+| `summary.json` | Regression summary |
+| `summary.md` | Human-readable regression summary |
 
 ## Example: Lupin Dental Validation
 
@@ -252,24 +298,25 @@ High-risk documents must always stop at the plan step until the user confirms.
 
 ## Recommended Next Work
 
-1. Add `recommendation_reasons` to conversion plans.
-2. Upgrade `office_quality_check.py` from warnings to `pass/warn/fail`.
-3. Add `run_regression.py` for batch validation.
-4. Add minimum test fixtures: text-only, visual-mix, high-density.
-5. Define a stricter Operit/Hermes calling contract.
-6. Add more professional plugins only after generic regression is stable.
+1. Define a stricter Operit/Hermes calling contract.
+2. Add MCP or HTTP service wrapper after CLI behavior remains stable.
+3. Add more real-world regression cases beyond synthetic fixtures.
+4. Expand professional plugins only after generic regression stays green.
+5. Add richer modify operations such as style normalization, chart insertion, and section-level rewrite plans.
 
 ## Development Notes
 
 Before committing changes, run:
 
 ```bash
-python -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py templates/*.py
+python3 -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py office_agent.py office_generate.py office_modify.py run_regression.py make_regression_fixtures.py templates/*.py
 ```
 
 Then validate at least one full flow:
 
 ```bash
-python3 office_convert.py plan input.pptx --mode generic_reading --fidelity F2
-python3 office_convert.py run plan.json --confirm
+python3 office_agent.py generate docx schemas/docx.example.json --confirm
+python3 office_agent.py convert pptx-to-docx input.pptx --confirm
+python3 office_agent.py modify output.docx schemas/modify.example.json --confirm
+python3 run_regression.py
 ```
