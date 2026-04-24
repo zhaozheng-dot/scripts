@@ -27,6 +27,21 @@ def choose_template(args_template, plan):
     return plan.get('template') or default_template_for_mode(plan.get('selected_mode'), plan.get('detected_type')) or DEFAULT_TEMPLATE
 
 
+def render_from_plan(extracted, plan, template_name=None, output=None, require_confirmed=False):
+    if require_confirmed and not plan.get('confirmed'):
+        raise SystemExit('Plan is not confirmed. Set confirmed=true in plan JSON after user approval.')
+    template_name = template_name or choose_template('', plan)
+    try:
+        validate_template(template_name, plan.get('selected_mode'), plan.get('detected_type'), plan.get('confirmed', False))
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    output = output or plan['output']
+    refuse_overwrite_input(extracted.get('source', ''), output)
+    output = unique_output(output)
+    template = load_template(template_name)
+    return template.render(extracted, plan, output)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Render generic or plugin DOCX from extracted PPTX data.')
     parser.add_argument('extract_json')
@@ -37,18 +52,7 @@ def main():
     args = parser.parse_args()
     extracted = read_json(args.extract_json)
     plan = read_json(args.plan_json)
-    if args.require_confirmed and not plan.get('confirmed'):
-        raise SystemExit('Plan is not confirmed. Set confirmed=true in plan JSON after user approval.')
-    template_name = choose_template(args.template, plan)
-    try:
-        validate_template(template_name, plan.get('selected_mode'), plan.get('detected_type'), plan.get('confirmed', False))
-    except ValueError as exc:
-        raise SystemExit(str(exc))
-    output = args.output or plan['output']
-    refuse_overwrite_input(extracted.get('source', ''), output)
-    output = unique_output(output)
-    template = load_template(template_name)
-    print(template.render(extracted, plan, output))
+    print(render_from_plan(extracted, plan, args.template or None, args.output or None, args.require_confirmed))
 
 
 if __name__ == '__main__':
