@@ -1,0 +1,8 @@
+{
+  "operations": [
+    {"op": "replace_text", "old": "已冻结", "new": "已冻结并完成验证"},
+    {"op": "append_section", "heading": "后续计划", "paragraphs": ["将 Office Agent 从 MVP 升级为真实 OOXML 生成与修改工具。"]},
+    {"op": "append_rows", "sheet": "风险", "rows": [[3, "Office OOXML 生成", "已验证"]]},
+    {"op": "append_slide", "title": "后续计划", "bullets": ["完善模板系统", "支持图表和高级布局"]}
+  ]
+}

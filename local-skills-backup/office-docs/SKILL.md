@@ -1,7 +1,7 @@
 ---
 name: office-docs
-description: Generate and inspect Word, Excel, and PowerPoint-style documents from structured specs with safe confirmation boundaries.
-version: 0.1.0
+description: Generate and inspect real Word, Excel, and PowerPoint documents from structured specs with safe confirmation boundaries.
+version: 0.2.0
 author: Operit-Hermes Cluster
 metadata:
   hermes:
@@ -14,8 +14,13 @@ metadata:
 ## Trigger
 Use this skill when the user asks to generate, modify, inspect, or summarize Word, Excel, or PowerPoint documents.
 
-## Current MVP
-The current implementation is dependency-free and writes HTML documents with Office file extensions. These files are suitable for basic opening/editing in Office-compatible tools, but they are not full OOXML packages yet. Upgrade to python-docx, openpyxl, and python-pptx when Python package installation is available.
+## Current Capability
+The current implementation generates real OOXML files when dependencies are available:
+- Word: `python-docx` / `python3-docx`
+- Excel: `openpyxl` / `python3-openpyxl`
+- PowerPoint: `python-pptx`
+
+If a dependency is missing, `office_generate.py --format auto` falls back to HTML-compatible output. Use `--format ooxml` when real Office packages are required.
 
 ## Paths
 - Scripts: `/mnt/f/scripts/office-agent/`
@@ -28,19 +33,20 @@ The current implementation is dependency-free and writes HTML documents with Off
 
 ## Tools
 ```bash
-python3 /mnt/f/scripts/office-agent/office_generate.py docx spec.json output.docx
-python3 /mnt/f/scripts/office-agent/office_generate.py xlsx spec.json output.xlsx
-python3 /mnt/f/scripts/office-agent/office_generate.py pptx spec.json output.pptx
+python3 /mnt/f/scripts/office-agent/office_generate.py docx spec.json output.docx --format ooxml
+python3 /mnt/f/scripts/office-agent/office_generate.py xlsx spec.json output.xlsx --format ooxml
+python3 /mnt/f/scripts/office-agent/office_generate.py pptx spec.json output.pptx --format ooxml
 python3 /mnt/f/scripts/office-agent/office_extract.py input.docx output.json
+python3 /mnt/f/scripts/office-agent/office_modify.py input.docx modify.json output.docx
 ```
 
 ## Workflow
 1. Convert the user request into a structured JSON spec.
 2. Show the outline or sheet/slide plan before generating important documents.
 3. Generate into `/mnt/f/office-output/`, never into an Obsidian repo by default.
-4. Read back or extract text to verify basic content.
+4. Extract text or inspect workbook/slide content to verify basic output.
 5. Report output paths.
-6. Do not commit binary/Office outputs unless the user explicitly asks.
+6. Do not commit generated Office outputs unless the user explicitly asks.
 
 ## Safety Rules
 - Never overwrite an existing Office file; write a timestamped copy instead.
@@ -51,6 +57,6 @@ python3 /mnt/f/scripts/office-agent/office_extract.py input.docx output.json
 - `git push` requires explicit user confirmation.
 
 ## Limitations
-- MVP output has basic formatting only.
-- Complex PowerPoint layouts, animations, charts, formulas, and tracked changes require later OOXML or Office COM support.
-- Excel formulas are not calculated by this MVP.
+- Charts, complex themes, animations, tracked changes, and advanced formulas are not fully implemented yet.
+- Excel formulas can be written, but are not calculated by Python.
+- Existing document modification should extract or copy to a new file first; do not mutate the original.
