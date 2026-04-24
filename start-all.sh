@@ -4,7 +4,16 @@
 
 OC_BIN="/home/alex/.opencode/bin/opencode"
 LOG_DIR="/tmp/opencode"
+ENV_FILE="/home/alex/.config/opencode/opencode.env"
 mkdir -p $LOG_DIR
+
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    . "$ENV_FILE"
+    set +a
+else
+    echo "[WARN] Env file not found: $ENV_FILE"
+fi
 
 echo "=== OpenCode 全栈启动 ==="
 echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"
