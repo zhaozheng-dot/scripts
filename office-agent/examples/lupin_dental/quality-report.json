@@ -1,0 +1,19 @@
+{
+  "file": "/mnt/f/office-output/word/registry-lupin-reading-validation.docx",
+  "exists": true,
+  "size_bytes": 47457,
+  "paragraphs": 430,
+  "tables": 74,
+  "technical_ok": true,
+  "experience_checks": {
+    "has_cover_like_title": true,
+    "has_summary_or_navigation": true,
+    "has_attention_or_source_content": true,
+    "avoids_slide_by_slide": true
+  },
+  "content_checks": {
+    "source_slides": 15,
+    "ledger_rows": 15
+  },
+  "warnings": []
+}

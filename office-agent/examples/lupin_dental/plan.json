@@ -1,0 +1,46 @@
+{
+  "source": "/mnt/f/office-input/Lupin Dental (DIGICUTO SAS) 投资评审报告.pptx",
+  "detected_type": "investment_review",
+  "risk_level": "high",
+  "selected_mode": "generic_reading",
+  "mode_code": "M2",
+  "mode_label": "generic reading layout",
+  "template": "generic_reading",
+  "candidate_modes": [
+    "generic_raw",
+    "generic_reading",
+    "generic_visual_report",
+    "professional_report",
+    "editable_material"
+  ],
+  "fidelity_level": "F2",
+  "include_images": false,
+  "generate_source_map": true,
+  "generate_fidelity_ledger": true,
+  "requires_user_confirmation": true,
+  "confirmed": true,
+  "output": "/mnt/f/office-output/word/registry-lupin-reading-validation.docx",
+  "extract_output": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-source-map.json",
+  "ledger_json": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.json",
+  "ledger_md": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-fidelity-ledger.md",
+  "quality_report": "/mnt/f/office-output/extracted/Lupin Dental (DIGICUTO SAS) 投资评审报告-quality-report.json",
+  "allowed_operations": [
+    "do_not_overwrite_source",
+    "preserve_sources",
+    "preserve_disclaimer",
+    "generate_source_map",
+    "preserve_slide_order",
+    "improve_heading_hierarchy",
+    "convert_obvious_tables",
+    "merge_duplicates",
+    "light_rewording",
+    "no_new_facts"
+  ],
+  "warnings": [
+    "High-risk document type: confirm fidelity level before professional rewriting.",
+    "SmartArt/group shapes may not be fully structured; ledger should mark handling.",
+    "Images can be embedded or omitted depending on selected conversion plan.",
+    "Medium/high-risk material requires user confirmation before DOCX generation."
+  ],
+  "confirmation_note": "Confirmed by user before generation."
+}

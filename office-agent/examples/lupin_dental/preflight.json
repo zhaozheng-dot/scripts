@@ -1,0 +1,28 @@
+{
+  "file": "/mnt/f/office-input/Lupin Dental (DIGICUTO SAS) 投资评审报告.pptx",
+  "file_size_bytes": 14943476,
+  "slides": 15,
+  "text_items": 480,
+  "text_density": "high",
+  "tables": 1,
+  "images": 1,
+  "charts": 0,
+  "group_shapes": 0,
+  "smartart_like_shapes": 203,
+  "slides_with_speaker_notes": 0,
+  "detected_type": "investment_review",
+  "risk_level": "high",
+  "requires_confirmation": true,
+  "warnings": [
+    "High-risk document type: confirm fidelity level before professional rewriting.",
+    "SmartArt/group shapes may not be fully structured; ledger should mark handling.",
+    "Images can be embedded or omitted depending on selected conversion plan."
+  ],
+  "recommended_modes": [
+    "generic_raw",
+    "generic_reading",
+    "generic_visual_report",
+    "professional_report",
+    "editable_material"
+  ]
+}
