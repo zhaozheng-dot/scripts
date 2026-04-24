@@ -141,6 +141,20 @@ python3 make_regression_fixtures.py
 python3 run_regression.py
 ```
 
+Run HTTP service for Hermes / Operit:
+
+```bash
+python3 office_service.py --host 127.0.0.1 --port 8765
+```
+
+Run MCP-style stdio bridge:
+
+```bash
+python3 office_mcp_server.py
+```
+
+See `HERMES_OPERIT_PROTOCOL.md` for request schemas, task lifecycle, and upper-layer responsibilities.
+
 ## Conversion Modes
 
 | Mode | Name | Default template | Default fidelity | Use case |
@@ -211,6 +225,9 @@ Professional templates must not invent unsupported facts.
 | `office_modify.py` | Low-level DOCX / PPTX / XLSX modification operations |
 | `run_regression.py` | Batch regression runner |
 | `make_regression_fixtures.py` | Synthetic PPTX fixture generator |
+| `office_service.py` | Dependency-free HTTP service wrapper |
+| `office_mcp_server.py` | Dependency-free MCP-style JSON-RPC stdio bridge |
+| `HERMES_OPERIT_PROTOCOL.md` | Hermes / Operit calling contract |
 | `office_common.py` | Shared helpers |
 | `template_registry.py` | Conversion mode and template registry |
 | `pptx_preflight.py` | Lightweight PPTX analysis |
@@ -309,7 +326,7 @@ High-risk documents must always stop at the plan step until the user confirms.
 Before committing changes, run:
 
 ```bash
-python3 -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py office_agent.py office_generate.py office_modify.py run_regression.py make_regression_fixtures.py templates/*.py
+python3 -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py office_agent.py office_generate.py office_modify.py office_service.py office_mcp_server.py run_regression.py make_regression_fixtures.py templates/*.py
 ```
 
 Then validate at least one full flow:
