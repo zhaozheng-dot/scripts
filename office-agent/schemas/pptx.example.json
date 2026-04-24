@@ -1,0 +1,7 @@
+{
+  "title": "四位一体系统汇报",
+  "slides": [
+    {"title": "四位一体协同系统", "subtitle": "Operit x Hermes x OpenCode x Obsidian x Git"},
+    {"title": "当前基线", "bullets": ["OpenCode 双实例已运行", "auto-commit 已冻结", "obsidian-write Skill 已备份"]}
+  ]
+}

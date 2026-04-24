@@ -1,0 +1,16 @@
+{
+  "title": "四位一体系统简报",
+  "sections": [
+    {
+      "heading": "系统概览",
+      "paragraphs": ["本系统由 Operit、Hermes、OpenCode、Obsidian 和 Git 协同组成。"]
+    },
+    {
+      "heading": "安全基线",
+      "table": {
+        "headers": ["项目", "状态"],
+        "rows": [["auto-commit", "已冻结，默认 dry-run"], ["API Key", "本地 env，不写入笔记"]]
+      }
+    }
+  ]
+}
