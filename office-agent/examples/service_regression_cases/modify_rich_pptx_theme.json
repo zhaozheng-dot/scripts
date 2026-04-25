@@ -1,0 +1,17 @@
+{
+  "case_id": "modify_rich_pptx_theme",
+  "description": "P3 modify case: apply a PPT theme color accent and append a conclusion slide.",
+  "fixture": "business_project_weekly.pptx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_project_weekly.pptx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "set_theme", "primary_color": "1F4E79", "accent_color": "F28C28"},
+        {"op": "append_slide", "title": "增强修改验证", "bullets": ["已统一标题主题色", "已添加强调色边栏", "已追加结论页"], "notes": "P3 PPT theme regression case."}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

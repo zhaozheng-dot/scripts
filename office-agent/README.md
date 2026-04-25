@@ -134,6 +134,8 @@ python3 office_agent.py modify input.pptx schemas/modify.example.json --confirm
 python3 office_agent.py modify input.xlsx schemas/modify.example.json --confirm
 ```
 
+Richer modify operations include `add_toc` / `set_heading_style` for DOCX, `set_theme` for PPTX, and `insert_formula` / `style_header` for XLSX. See `schemas/modify.rich.example.json`.
+
 Run regression fixtures:
 
 ```bash

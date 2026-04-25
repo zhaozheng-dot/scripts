@@ -139,7 +139,7 @@ POST /office/tasks/{task_id}/cancel
 }
 ```
 
-The caller may also pass `instruction_path` instead of inline `instruction`.
+The caller may also pass `instruction_path` instead of inline `instruction`. Supported modify operations include `replace_text`, `append_section`, `add_toc`, `set_heading_style`, `append_slide`, `set_theme`, `set_cell`, `insert_formula`, `append_rows`, and `style_header`.
 
 ## Hermes Responsibilities
 

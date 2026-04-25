@@ -1,0 +1,19 @@
+{
+  "case_id": "modify_rich_xlsx_formula_style",
+  "description": "P3 modify case: insert Excel formulas and style the header row.",
+  "fixture": "business_budget_tracker.xlsx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_budget_tracker.xlsx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "set_cell", "sheet": "预算", "cell": "F1", "value": "差异率"},
+        {"op": "insert_formula", "sheet": "预算", "cell": "F2", "formula": "=IF(B2=0,0,D2/B2)"},
+        {"op": "insert_formula", "sheet": "预算", "cell": "F3", "formula": "=IF(B3=0,0,D3/B3)"},
+        {"op": "style_header", "sheet": "预算", "fill": "1F4E79", "font_color": "FFFFFF"}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

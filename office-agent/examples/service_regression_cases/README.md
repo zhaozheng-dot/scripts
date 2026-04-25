@@ -16,7 +16,7 @@ Run them with:
 python3 run_service_regression.py --make-fixtures
 ```
 
-`--make-fixtures` creates both the conversion PPTX fixtures and synthetic business Office files in `examples/service_regression_inputs/`. Cases may be success cases, cancellation cases, or expected-failure cases.
+`--make-fixtures` creates both the conversion PPTX fixtures and synthetic business Office files in `examples/service_regression_inputs/`. Cases may be success cases, cancellation cases, expected-failure cases, or richer modify cases for DOCX TOC/style, PPTX theme accents, and XLSX formulas/header styling.
 
 Outputs are written to `/mnt/f/office-output/service-regression/<timestamp>/`.
 

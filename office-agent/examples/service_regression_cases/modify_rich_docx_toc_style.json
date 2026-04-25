@@ -1,0 +1,18 @@
+{
+  "case_id": "modify_rich_docx_toc_style",
+  "description": "P3 modify case: add a Word TOC placeholder, style headings, and append a rollout section.",
+  "fixture": "business_project_plan.docx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_project_plan.docx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "add_toc", "title": "目录"},
+        {"op": "set_heading_style", "color": "1F4E79", "font": "Aptos"},
+        {"op": "append_section", "heading": "增强修改验证", "paragraphs": ["该文档已插入目录占位并统一标题样式。"]}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

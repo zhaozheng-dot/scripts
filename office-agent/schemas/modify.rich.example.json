@@ -1,0 +1,12 @@
+{
+  "risk_level": "low",
+  "operations": [
+    {"op": "add_toc", "title": "目录"},
+    {"op": "append_section", "heading": "复核结论", "paragraphs": ["文档已完成增强型修改验证。"]},
+    {"op": "set_theme", "primary_color": "1F4E79", "accent_color": "F28C28"},
+    {"op": "append_slide", "title": "复核结论", "bullets": ["统一主题色", "追加结论页"]},
+    {"op": "insert_formula", "sheet": "预算", "cell": "E2", "formula": "=B2-C2"},
+    {"op": "insert_formula", "sheet": "预算", "cell": "E5", "formula": "=SUM(E2:E4)"},
+    {"op": "style_header", "sheet": "预算", "fill": "1F4E79", "font_color": "FFFFFF"}
+  ]
+}
