@@ -1,0 +1,17 @@
+{
+  "case_id": "modify_business_budget_tracker",
+  "description": "Modify a synthetic budget workbook by replacing pending status and appending risk rows.",
+  "fixture": "business_budget_tracker.xlsx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_budget_tracker.xlsx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "replace_text", "sheet": "预算", "old": "待确认", "new": "已确认"},
+        {"op": "append_rows", "sheet": "风险", "rows": [[3, "供应商报价波动", "中", "监控中"]]}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

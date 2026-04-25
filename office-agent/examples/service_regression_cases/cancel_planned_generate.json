@@ -1,0 +1,14 @@
+{
+  "case_id": "cancel_planned_generate",
+  "description": "Cancellation case: cancel a planned generate task before execution and verify it is not queued.",
+  "cancel_after_plan": true,
+  "request": {
+    "task_type": "generate",
+    "kind": "docx",
+    "spec": {
+      "title": "取消验证样例",
+      "sections": [{"heading": "说明", "paragraphs": ["该任务应在运行前被取消。"]}]
+    }
+  },
+  "expectations": ["cancel returns status=cancelled", "events include planned and cancel_requested", "task is not queued"]
+}

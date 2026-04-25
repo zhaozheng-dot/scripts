@@ -1,0 +1,16 @@
+{
+  "case_id": "modify_business_project_plan",
+  "description": "Modify a synthetic project plan DOCX by appending acceptance and rollout details.",
+  "fixture": "business_project_plan.docx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_project_plan.docx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "append_section", "heading": "上线计划", "paragraphs": ["先在合成样例上建立稳定基线，再逐步纳入脱敏真实样例。"], "table": {"headers": ["阶段", "动作", "验收"], "rows": [["P2A", "合成业务样例", "回归通过"], ["P2B", "异常样例", "错误结构稳定"]]}}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

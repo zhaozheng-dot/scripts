@@ -1,0 +1,26 @@
+{
+  "case_id": "modify_pptx_append_slide",
+  "description": "Modify a generated PPTX by replacing text and appending a slide.",
+  "setup": {
+    "kind": "pptx",
+    "output": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/modify_source_update.pptx",
+    "spec": {
+      "title": "待修改项目周报",
+      "slides": [
+        {"title": "当前状态", "bullets": ["状态：待确认", "范围：脱敏样例"]}
+      ]
+    }
+  },
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/modify_source_update.pptx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "replace_text", "old": "待确认", "new": "已确认"},
+        {"op": "append_slide", "title": "复核结论", "bullets": ["已生成新幻灯片", "源文件未覆盖"], "notes": "自动化修改样例。"}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "events include planned, queued, running, succeeded", "change_log exists", "output file exists"]
+}

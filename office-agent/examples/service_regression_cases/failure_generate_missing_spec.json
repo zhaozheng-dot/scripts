@@ -1,0 +1,14 @@
+{
+  "case_id": "failure_generate_missing_spec",
+  "description": "Negative case: generate planning should fail when neither spec nor spec_path is provided.",
+  "expected_failure": {
+    "stage": "plan",
+    "code": "bad_request",
+    "message_contains": "spec_path or inline spec"
+  },
+  "request": {
+    "task_type": "generate",
+    "kind": "docx"
+  },
+  "expectations": ["planning returns ok=false", "error code is bad_request"]
+}

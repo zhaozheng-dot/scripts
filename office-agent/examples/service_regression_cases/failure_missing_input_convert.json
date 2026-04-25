@@ -1,0 +1,17 @@
+{
+  "case_id": "failure_missing_input_convert",
+  "description": "Negative case: conversion planning should fail for a missing PPTX input path.",
+  "expected_failure": {
+    "stage": "plan",
+    "code": "bad_request",
+    "message_contains": "Package not found"
+  },
+  "request": {
+    "task_type": "convert",
+    "conversion": "pptx-to-docx",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/does_not_exist.pptx",
+    "fidelity": "F2",
+    "include_images": false
+  },
+  "expectations": ["planning returns ok=false", "error code is bad_request"]
+}

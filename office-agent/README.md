@@ -141,6 +141,14 @@ python3 make_regression_fixtures.py
 python3 run_regression.py
 ```
 
+Run service-level regression cases through HTTP:
+
+```bash
+python3 run_service_regression.py --make-fixtures
+```
+
+The service regression suite reads sanitized case files from `examples/service_regression_cases/`, creates synthetic business fixtures in `examples/service_regression_inputs/`, runs success, cancellation, and expected-failure cases through the HTTP API, then writes `summary.json` and `summary.md` under `/mnt/f/office-output/service-regression/`.
+
 Run HTTP service for Hermes / Operit:
 
 ```bash
@@ -233,8 +241,10 @@ Professional templates must not invent unsupported facts.
 | `office_convert.py` | Focused PPTX -> DOCX gated workflow entry point |
 | `office_generate.py` | Low-level DOCX / PPTX / XLSX generation renderers |
 | `office_modify.py` | Low-level DOCX / PPTX / XLSX modification operations |
-| `run_regression.py` | Batch regression runner |
+| `run_regression.py` | Batch conversion regression runner |
+| `run_service_regression.py` | HTTP service-level generate / convert / modify regression runner |
 | `make_regression_fixtures.py` | Synthetic PPTX fixture generator |
+| `make_service_regression_fixtures.py` | Synthetic business Office fixture generator |
 | `office_service.py` | Dependency-free HTTP service wrapper |
 | `office_service_client.py` | Hermes-style HTTP orchestration client |
 | `office_mcp_server.py` | Dependency-free MCP-style JSON-RPC stdio bridge |
@@ -339,7 +349,7 @@ High-risk documents must always stop at the plan step until the user confirms.
 Before committing changes, run:
 
 ```bash
-python3 -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py office_agent.py office_generate.py office_modify.py office_service.py office_mcp_server.py run_regression.py make_regression_fixtures.py templates/*.py
+python3 -m py_compile office_common.py template_registry.py pptx_preflight.py pptx_extract.py convert_plan.py confirm_plan.py fidelity_ledger.py pptx_to_docx_raw.py pptx_to_report_docx.py office_quality_check.py office_convert.py office_agent.py office_generate.py office_modify.py office_service.py office_service_client.py office_mcp_server.py run_regression.py run_service_regression.py make_regression_fixtures.py make_service_regression_fixtures.py templates/*.py
 ```
 
 Then validate at least one full flow:
@@ -349,4 +359,5 @@ python3 office_agent.py generate docx schemas/docx.example.json --confirm
 python3 office_agent.py convert pptx-to-docx input.pptx --confirm
 python3 office_agent.py modify output.docx schemas/modify.example.json --confirm
 python3 run_regression.py
+python3 run_service_regression.py --make-fixtures
 ```

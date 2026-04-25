@@ -1,0 +1,13 @@
+{
+  "case_id": "convert_business_project_weekly",
+  "description": "Convert a synthetic project weekly report PPTX with bullets and a risk table.",
+  "fixture": "business_project_weekly.pptx",
+  "request": {
+    "task_type": "convert",
+    "conversion": "pptx-to-docx",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_project_weekly.pptx",
+    "fidelity": "F2",
+    "include_images": false
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "ledger exists", "events include planned, queued, running, succeeded"]
+}

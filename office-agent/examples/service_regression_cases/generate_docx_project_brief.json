@@ -1,0 +1,38 @@
+{
+  "case_id": "generate_docx_project_brief",
+  "description": "Generate a project brief DOCX with paragraphs, bullets, and a milestone table.",
+  "request": {
+    "task_type": "generate",
+    "kind": "docx",
+    "spec": {
+      "title": "脱敏项目简报",
+      "risk_level": "low",
+      "sections": [
+        {
+          "heading": "背景",
+          "paragraphs": [
+            "本样例用于验证 Office Agent 的 DOCX 生成链路。",
+            "内容为脱敏业务材料，不包含真实客户或财务数据。"
+          ]
+        },
+        {
+          "heading": "里程碑",
+          "paragraphs": ["以下表格用于验证表格生成能力。"],
+          "table": {
+            "headers": ["阶段", "目标", "状态"],
+            "rows": [
+              ["P0", "服务稳定性", "完成"],
+              ["P1", "调用样例", "完成"],
+              ["P2", "真实回归样例", "进行中"]
+            ]
+          }
+        },
+        {
+          "heading": "验收点",
+          "bullets": ["文件可以打开", "质量报告为 pass 或 warn", "任务事件完整"]
+        }
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "events include planned, queued, running, succeeded", "output file exists"]
+}

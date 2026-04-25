@@ -1,0 +1,13 @@
+{
+  "case_id": "convert_business_decision_review",
+  "description": "Convert a dense synthetic decision review PPTX with high text density and chart content.",
+  "fixture": "business_decision_review.pptx",
+  "request": {
+    "task_type": "convert",
+    "conversion": "pptx-to-docx",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_decision_review.pptx",
+    "fidelity": "F2",
+    "include_images": false
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "ledger exists", "events include planned, queued, running, succeeded"]
+}

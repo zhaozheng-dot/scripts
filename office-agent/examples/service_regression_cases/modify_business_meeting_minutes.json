@@ -1,0 +1,17 @@
+{
+  "case_id": "modify_business_meeting_minutes",
+  "description": "Modify a synthetic meeting minutes DOCX by confirming action status and appending review notes.",
+  "fixture": "business_meeting_minutes.docx",
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/business_meeting_minutes.docx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "replace_text", "old": "待确认", "new": "已确认"},
+        {"op": "append_section", "heading": "复核记录", "paragraphs": ["本纪要已通过服务化修改回归验证。"], "bullets": ["保留源文件", "输出 change-log", "生成质量报告"]}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "change_log exists", "quality_status is pass or warn", "events include planned, queued, running, succeeded"]
+}

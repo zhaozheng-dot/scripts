@@ -1,0 +1,20 @@
+{
+  "case_id": "failure_run_without_confirm",
+  "description": "Negative case: running a planned task without confirm=true should end as a failed task with run_rejected event.",
+  "run_confirm": false,
+  "expected_failure": {
+    "stage": "run",
+    "terminal_status": "failed",
+    "event": "run_rejected",
+    "message_contains": "confirm=true is required"
+  },
+  "request": {
+    "task_type": "generate",
+    "kind": "docx",
+    "spec": {
+      "title": "未确认运行样例",
+      "sections": [{"heading": "说明", "paragraphs": ["该任务用于验证 confirm 门控。"]}]
+    }
+  },
+  "expectations": ["run is rejected without confirmation", "task reaches failed terminal state", "events include run_rejected"]
+}

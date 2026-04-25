@@ -1,0 +1,29 @@
+{
+  "case_id": "generate_pptx_status_update",
+  "description": "Generate a status update PPTX with title, agenda, progress, and risks.",
+  "request": {
+    "task_type": "generate",
+    "kind": "pptx",
+    "spec": {
+      "title": "脱敏项目周报",
+      "risk_level": "low",
+      "slides": [
+        {
+          "title": "本周进展",
+          "subtitle": "P2 回归样例建设",
+          "bullets": ["服务化链路已具备审计日志", "生成、转换、修改均可被 HTTP 调用", "开始扩展真实样例集"]
+        },
+        {
+          "title": "风险与缓解",
+          "bullets": ["真实材料可能包含敏感信息，需先脱敏", "复杂版式可能降级为阅读型输出", "失败样例进入后续能力路线图"],
+          "notes": "用于验证 speaker notes 写入。"
+        },
+        {
+          "title": "下周计划",
+          "body": "完成 5-10 个真实样例并形成服务化回归摘要。"
+        }
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "events include planned, queued, running, succeeded", "output file exists"]
+}

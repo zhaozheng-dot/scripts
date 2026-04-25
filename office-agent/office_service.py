@@ -193,8 +193,9 @@ def run_task(task_id, confirm=False):
     if not task:
         raise ValueError(f'Unknown task_id: {task_id}')
     if not confirm:
+        task = update_task(task_id, status='failed', confirmed=False, error={'message': 'confirm=true is required to run an Office Agent task', 'type': 'ValueError'})
         append_event(task_id, 'run_rejected', {'reason': 'confirm=true is required'})
-        raise ValueError('confirm=true is required to run an Office Agent task')
+        return task
     if task.get('cancel_requested'):
         task = update_task(task_id, status='cancelled', confirmed=False)
         append_event(task_id, 'cancelled', {'stage': 'before_run'})

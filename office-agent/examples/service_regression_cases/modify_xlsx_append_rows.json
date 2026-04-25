@@ -1,0 +1,27 @@
+{
+  "case_id": "modify_xlsx_append_rows",
+  "description": "Modify a generated XLSX by replacing text and appending rows.",
+  "setup": {
+    "kind": "xlsx",
+    "output": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/modify_source_budget.xlsx",
+    "spec": {
+      "title": "待修改预算表",
+      "sheets": [
+        {"name": "预算", "headers": ["科目", "状态"], "rows": [["工具", "待确认"], ["外包", "正常"]]},
+        {"name": "风险", "headers": ["编号", "风险", "状态"], "rows": [[1, "范围变化", "待确认"]]}
+      ]
+    }
+  },
+  "request": {
+    "task_type": "modify",
+    "input": "/mnt/f/scripts/office-agent/examples/service_regression_inputs/modify_source_budget.xlsx",
+    "instruction": {
+      "risk_level": "low",
+      "operations": [
+        {"op": "replace_text", "sheet": "预算", "old": "待确认", "new": "已确认"},
+        {"op": "append_rows", "sheet": "风险", "rows": [[2, "成本波动", "监控中"]]}
+      ]
+    }
+  },
+  "expectations": ["status=succeeded", "quality_status is pass or warn", "events include planned, queued, running, succeeded", "change_log exists", "output file exists"]
+}
