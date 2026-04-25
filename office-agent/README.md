@@ -153,6 +153,16 @@ Run MCP-style stdio bridge:
 python3 office_mcp_server.py
 ```
 
+Run Hermes-style service client validation:
+
+```bash
+python3 office_service_client.py --sample generate --auto-confirm
+python3 office_service_client.py --sample convert --auto-confirm
+python3 office_service_client.py --sample modify --auto-confirm
+```
+
+The service writes per-task audit events to `events.jsonl` and exposes them at `GET /office/tasks/{task_id}/events`. It also supports cancellation through `POST /office/cancel` or `POST /office/tasks/{task_id}/cancel`.
+
 See `HERMES_OPERIT_PROTOCOL.md` for request schemas, task lifecycle, and upper-layer responsibilities.
 
 ## Conversion Modes
@@ -226,6 +236,7 @@ Professional templates must not invent unsupported facts.
 | `run_regression.py` | Batch regression runner |
 | `make_regression_fixtures.py` | Synthetic PPTX fixture generator |
 | `office_service.py` | Dependency-free HTTP service wrapper |
+| `office_service_client.py` | Hermes-style HTTP orchestration client |
 | `office_mcp_server.py` | Dependency-free MCP-style JSON-RPC stdio bridge |
 | `HERMES_OPERIT_PROTOCOL.md` | Hermes / Operit calling contract |
 | `office_common.py` | Shared helpers |
@@ -254,6 +265,7 @@ Professional templates must not invent unsupported facts.
 | `quality-report.json` | Structured technical/content/experience checks with pass/warn/fail |
 | `quality-report.md` | Human-readable quality report |
 | `change-log.json` | Modify-task change log |
+| `events.jsonl` | Per-task service audit event log |
 | `summary.json` | Regression summary |
 | `summary.md` | Human-readable regression summary |
 
@@ -293,14 +305,15 @@ examples/lupin_dental/
 Recommended orchestration:
 
 ```text
-1. Operit receives the user request and PPTX path.
-2. Hermes schedules the long-running conversion task.
-3. OpenCode runs `office_convert.py plan`.
-4. The plan markdown is shown to the user.
-5. The user confirms mode, fidelity, image handling, template, and output path.
-6. OpenCode runs `office_convert.py run plan.json --confirm`.
-7. The DOCX path, fidelity ledger, and quality report are returned to the user.
-8. Important decisions and results can be written back to Obsidian.
+1. Operit receives the user request and source path.
+2. Hermes calls `POST /office/plan`.
+3. The returned `plan_md` is shown to the user.
+4. The user confirms mode, fidelity, image handling, template, and output path.
+5. Hermes calls `POST /office/run` with `confirm=true`.
+6. Hermes polls `GET /office/tasks/{task_id}` until a terminal status.
+7. Hermes can read `GET /office/tasks/{task_id}/events` for audit/debugging.
+8. The output, ledger/change log, and quality report are returned to the user.
+9. Important decisions and results can be written back to Obsidian.
 ```
 
 High-risk documents must always stop at the plan step until the user confirms.

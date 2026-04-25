@@ -28,6 +28,8 @@ from office_convert import run_confirmed_plan
 
 DEFAULT_TASK_ROOT = os.environ.get('OFFICE_AGENT_TASK_ROOT', '/mnt/f/office-output/office-service/tasks')
 TASK_LOCK = threading.Lock()
+TASK_THREADS = {}
+TERMINAL_STATUSES = {'succeeded', 'failed', 'cancelled'}
 
 
 def now_iso():
@@ -61,6 +63,27 @@ def task_path(task_id):
     return os.path.join(task_dir(task_id), 'task.json')
 
 
+def events_path(task_id):
+    return os.path.join(task_dir(task_id), 'events.jsonl')
+
+
+def append_event(task_id, event, details=None):
+    record = {'ts': now_iso(), 'event': event, 'details': details or {}}
+    os.makedirs(task_dir(task_id), exist_ok=True)
+    with TASK_LOCK:
+        with open(events_path(task_id), 'a', encoding='utf-8') as f:
+            f.write(json.dumps(record, ensure_ascii=False) + '\n')
+
+
+def read_events(task_id, limit=None):
+    path = events_path(task_id)
+    if not os.path.exists(path):
+        return []
+    with open(path, 'r', encoding='utf-8') as f:
+        rows = [json.loads(line) for line in f if line.strip()]
+    return rows[-limit:] if limit else rows
+
+
 def save_task(task):
     with TASK_LOCK:
         write_json(task_path(task['task_id']), task)
@@ -71,6 +94,16 @@ def load_task(task_id):
     if not os.path.exists(path):
         return None
     return read_json(path)
+
+
+def update_task(task_id, **changes):
+    task = load_task(task_id)
+    if not task:
+        return None
+    task.update(changes)
+    task['updated_at'] = now_iso()
+    save_task(task)
+    return task
 
 
 def public_task(task):
@@ -138,6 +171,7 @@ def make_plan_record(body):
         'created_at': now_iso(),
         'updated_at': now_iso(),
         'workspace': root,
+        'events': events_path(task_id),
         'plan_json': plan_path,
         'plan_md': plan_md,
         'output': plan.get('output'),
@@ -145,10 +179,12 @@ def make_plan_record(body):
         'quality_markdown': plan.get('quality_markdown') or plan.get('quality_report', '').replace('.json', '.md'),
         'requires_user_confirmation': plan.get('requires_user_confirmation', True),
         'confirmed': False,
+        'cancel_requested': False,
         'result': None,
         'error': None,
     }
     save_task(task)
+    append_event(task_id, 'planned', {'task_type': task_type, 'plan_json': plan_path, 'plan_md': plan_md})
     return task
 
 
@@ -157,12 +193,18 @@ def run_task(task_id, confirm=False):
     if not task:
         raise ValueError(f'Unknown task_id: {task_id}')
     if not confirm:
+        append_event(task_id, 'run_rejected', {'reason': 'confirm=true is required'})
         raise ValueError('confirm=true is required to run an Office Agent task')
-    task['status'] = 'running'
-    task['confirmed'] = True
-    task['updated_at'] = now_iso()
-    task['error'] = None
-    save_task(task)
+    if task.get('cancel_requested'):
+        task = update_task(task_id, status='cancelled', confirmed=False)
+        append_event(task_id, 'cancelled', {'stage': 'before_run'})
+        return task
+    if task.get('status') in TERMINAL_STATUSES:
+        append_event(task_id, 'run_skipped', {'status': task.get('status')})
+        return task
+
+    task = update_task(task_id, status='running', confirmed=True, error=None)
+    append_event(task_id, 'running', {'confirmed': True})
     try:
         if task['task_type'] == 'generate':
             result = run_generate_plan(task['plan_json'], confirm=True)
@@ -170,27 +212,68 @@ def run_task(task_id, confirm=False):
             result = run_modify_plan(task['plan_json'], confirm=True)
         else:
             result = run_confirmed_plan(task['plan_json'], confirm=True)
-        task['status'] = 'succeeded'
-        task['result'] = result
-        if result.get('output'):
-            task['output'] = result.get('output')
-        if result.get('docx'):
-            task['output'] = result.get('docx')
+
+        task = load_task(task_id) or task
+        if task.get('cancel_requested'):
+            task['status'] = 'cancelled'
+            task['error'] = {'message': 'Task completed after cancellation request; artifacts may exist.', 'type': 'CancelledAfterRun'}
+            append_event(task_id, 'cancelled_after_run', {'result': result})
+        else:
+            task['status'] = 'succeeded'
+            task['result'] = result
+            if result.get('output'):
+                task['output'] = result.get('output')
+            if result.get('docx'):
+                task['output'] = result.get('docx')
+            append_event(task_id, 'succeeded', {'result': result})
     except Exception as exc:
+        task = load_task(task_id) or task
         task['status'] = 'failed'
         task['error'] = {'message': str(exc), 'type': type(exc).__name__}
         task['traceback'] = traceback.format_exc()
+        append_event(task_id, 'failed', task['error'])
     task['updated_at'] = now_iso()
     save_task(task)
+    return task
 
 
 def start_task(task_id, confirm=False):
+    task = load_task(task_id)
+    if not task:
+        return None
+    if task.get('status') in TERMINAL_STATUSES:
+        append_event(task_id, 'run_skipped', {'status': task.get('status')})
+        return task
+    if task.get('cancel_requested'):
+        task = update_task(task_id, status='cancelled', confirmed=False)
+        append_event(task_id, 'cancelled', {'stage': 'before_queue'})
+        return task
+    task = update_task(task_id, status='queued')
+    append_event(task_id, 'queued', {'confirm': confirm})
     thread = threading.Thread(target=run_task, args=(task_id, confirm), daemon=True)
+    TASK_THREADS[task_id] = thread
     thread.start()
+    return task
+
+
+def cancel_task(task_id):
+    task = load_task(task_id)
+    if not task:
+        return None
+    if task.get('status') in TERMINAL_STATUSES:
+        append_event(task_id, 'cancel_ignored', {'status': task.get('status')})
+        return task
+    status = 'cancelled' if task.get('status') in {'planned', 'queued'} else task.get('status')
+    task['cancel_requested'] = True
+    task['status'] = status
+    task['updated_at'] = now_iso()
+    save_task(task)
+    append_event(task_id, 'cancel_requested', {'status': status})
+    return task
 
 
 class OfficeHandler(BaseHTTPRequestHandler):
-    server_version = 'OfficeAgentHTTP/1.0'
+    server_version = 'OfficeAgentHTTP/1.1'
 
     def log_message(self, fmt, *args):
         print(f'{self.address_string()} - {fmt % args}', file=sys.stderr)
@@ -216,10 +299,14 @@ class OfficeHandler(BaseHTTPRequestHandler):
             self.send_json(200, {'ok': True, 'service': 'office-agent', 'status': 'ready', 'task_root': task_root()})
             return
         if path.startswith('/office/tasks/'):
-            task_id = path.rsplit('/', 1)[-1]
+            parts = path.strip('/').split('/')
+            task_id = parts[2] if len(parts) >= 3 else ''
             task = load_task(task_id)
             if not task:
                 self.send_json(404, error_response('not_found', 'Task not found'))
+                return
+            if len(parts) == 4 and parts[3] == 'events':
+                self.send_json(200, {'ok': True, 'task_id': task_id, 'events': read_events(task_id)})
                 return
             self.send_json(200, {'ok': True, 'task': public_task(task)})
             return
@@ -241,12 +328,30 @@ class OfficeHandler(BaseHTTPRequestHandler):
                 if not task:
                     self.send_json(404, error_response('not_found', 'Task not found'))
                     return
-                if task.get('status') == 'running':
-                    self.send_json(409, error_response('already_running', 'Task is already running'))
+                if task.get('status') in {'queued', 'running'}:
+                    self.send_json(409, error_response('already_running', 'Task is already queued or running'))
                     return
-                start_task(task_id, confirm=bool(body.get('confirm', False)))
-                task = load_task(task_id) or task
-                self.send_json(202, {'ok': True, 'task': public_task(task)})
+                task = start_task(task_id, confirm=bool(body.get('confirm', False)))
+                status = 202 if task.get('status') == 'queued' else 200
+                self.send_json(status, {'ok': True, 'task': public_task(task)})
+                return
+            if path == '/office/cancel':
+                task_id = body.get('task_id')
+                if not task_id:
+                    raise ValueError('task_id is required')
+                task = cancel_task(task_id)
+                if not task:
+                    self.send_json(404, error_response('not_found', 'Task not found'))
+                    return
+                self.send_json(200, {'ok': True, 'task': public_task(task)})
+                return
+            parts = path.strip('/').split('/')
+            if len(parts) == 4 and parts[:2] == ['office', 'tasks'] and parts[3] == 'cancel':
+                task = cancel_task(parts[2])
+                if not task:
+                    self.send_json(404, error_response('not_found', 'Task not found'))
+                    return
+                self.send_json(200, {'ok': True, 'task': public_task(task)})
                 return
             self.send_json(404, error_response('not_found', 'Unknown endpoint'))
         except Exception as exc:

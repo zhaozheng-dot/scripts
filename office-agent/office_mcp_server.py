@@ -15,7 +15,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-from office_service import make_plan_record, run_task, load_task, public_task
+from office_service import cancel_task, make_plan_record, read_events, start_task, load_task, public_task
 
 TOOLS = [
     {
@@ -61,6 +61,24 @@ TOOLS = [
             'required': ['task_id'],
         },
     },
+    {
+        'name': 'office_get_events',
+        'description': 'Read Office Agent task event log.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {'task_id': {'type': 'string'}},
+            'required': ['task_id'],
+        },
+    },
+    {
+        'name': 'office_cancel',
+        'description': 'Request cancellation for a planned, queued, or running Office Agent task.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {'task_id': {'type': 'string'}},
+            'required': ['task_id'],
+        },
+    },
 ]
 
 
@@ -90,12 +108,24 @@ def handle_tool(name, args):
             raise ValueError('task_id is required')
         if not confirm:
             raise ValueError('confirm=true is required')
-        run_task(task_id, confirm=True)
-        task = load_task(task_id)
+        task = start_task(task_id, confirm=True)
+        if not task:
+            raise ValueError(f'Unknown task_id: {task_id}')
         return content_payload({'ok': True, 'task': public_task(task)})
     if name == 'office_get_task':
         task_id = (args or {}).get('task_id')
         task = load_task(task_id)
+        if not task:
+            raise ValueError(f'Unknown task_id: {task_id}')
+        return content_payload({'ok': True, 'task': public_task(task)})
+    if name == 'office_get_events':
+        task_id = (args or {}).get('task_id')
+        if not load_task(task_id):
+            raise ValueError(f'Unknown task_id: {task_id}')
+        return content_payload({'ok': True, 'task_id': task_id, 'events': read_events(task_id)})
+    if name == 'office_cancel':
+        task_id = (args or {}).get('task_id')
+        task = cancel_task(task_id)
         if not task:
             raise ValueError(f'Unknown task_id: {task_id}')
         return content_payload({'ok': True, 'task': public_task(task)})

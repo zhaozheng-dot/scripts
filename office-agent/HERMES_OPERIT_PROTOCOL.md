@@ -20,8 +20,9 @@ A task has these common fields:
 |---|---|
 | `task_id` | Stable ID for polling and audit |
 | `task_type` | `generate`, `convert`, or `modify` |
-| `status` | `planned`, `running`, `succeeded`, or `failed` |
+| `status` | `planned`, `queued`, `running`, `succeeded`, `failed`, or `cancelled` |
 | `workspace` | Directory containing task artifacts |
+| `events` | JSONL event log path for audit and debugging |
 | `plan_json` | Machine-readable plan |
 | `plan_md` | Human-readable plan shown to user |
 | `output` | Main generated or modified file |
@@ -70,6 +71,29 @@ Poll status:
 
 ```http
 GET /office/tasks/{task_id}
+```
+
+Read event log:
+
+```http
+GET /office/tasks/{task_id}/events
+```
+
+Cancel before or during execution:
+
+```http
+POST /office/cancel
+Content-Type: application/json
+
+{
+  "task_id": "..."
+}
+```
+
+Equivalent task-scoped cancel endpoint:
+
+```http
+POST /office/tasks/{task_id}/cancel
 ```
 
 ## Generate Request
@@ -126,9 +150,10 @@ Hermes should:
 3. Return `plan_md` to Operit for user review.
 4. Wait for explicit user confirmation.
 5. Call `/office/run` with `confirm=true`.
-6. Poll `/office/tasks/{task_id}` until status is `succeeded` or `failed`.
-7. Return `output`, `quality_report`, `quality_markdown`, and any ledger/change-log artifacts.
-8. Write important decisions and artifact paths to Obsidian.
+6. Poll `/office/tasks/{task_id}` until status is `succeeded`, `failed`, or `cancelled`.
+7. Read `/office/tasks/{task_id}/events` when debugging or writing an audit trail.
+8. Return `output`, `quality_report`, `quality_markdown`, and any ledger/change-log artifacts.
+9. Write important decisions and artifact paths to Obsidian.
 
 ## Operit Responsibilities
 
@@ -139,6 +164,7 @@ Operit should:
 3. Ask the user to confirm mode, fidelity, image handling, template, and output path.
 4. Never auto-confirm high-risk materials.
 5. Display result paths and quality status after completion.
+6. If the user cancels before execution, call `/office/cancel` or `/office/tasks/{task_id}/cancel`.
 
 ## Error Handling
 
@@ -183,5 +209,7 @@ Tools:
 | `office_plan` | Create plan and task record |
 | `office_run` | Run after explicit confirmation |
 | `office_get_task` | Read task status and artifact paths |
+| `office_get_events` | Read task event log |
+| `office_cancel` | Request cancellation |
 
 The bridge uses JSON-RPC lines over stdin/stdout and is intentionally dependency-free. A future version can replace it with a full MCP SDK server without changing the high-level tool contract.
